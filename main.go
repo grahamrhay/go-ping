@@ -22,7 +22,7 @@ func main() {
 				log.Printf("Error from ping: %v\n", err)
 			} else {
 				ring.Value = res
-				ring.Next()
+				ring = ring.Next()
 				log.Printf("Time: %v\n", res.Time)
 				log.Printf("Min: %f ms\n", res.Min)
 				log.Printf("Avg: %f ms\n", res.Avg)
