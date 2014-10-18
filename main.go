@@ -3,6 +3,7 @@ package main
 import (
 	"container/ring"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -29,6 +30,10 @@ func main() {
 				log.Printf("Mdev: %f ms\n", res.Mdev)
 			}
 		}
+	}()
+
+	go func() {
+		log.Fatal(http.ListenAndServe(":8080", nil))
 	}()
 
 	ch := make(chan os.Signal)
