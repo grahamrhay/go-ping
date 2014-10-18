@@ -1,6 +1,7 @@
 package main
 
 import (
+	"container/ring"
 	"log"
 	"os"
 	"os/signal"
@@ -9,6 +10,8 @@ import (
 )
 
 func main() {
+	ring := ring.New(10)
+
 	ticker := time.NewTicker(10 * time.Second)
 	go func() {
 		for _ = range ticker.C {
@@ -17,6 +20,8 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
+			ring.Value = res
+			ring.Next()
 			log.Printf("Min: %f ms\n", res.Min)
 			log.Printf("Avg: %f ms\n", res.Avg)
 			log.Printf("Max: %f ms\n", res.Max)
