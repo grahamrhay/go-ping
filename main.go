@@ -18,15 +18,16 @@ func main() {
 			log.Println("ping google.com -c 5")
 			res, err := ping("google.com", 5)
 			if err != nil {
-				log.Fatal(err)
+				log.Printf("Error from ping: %v\n", err)
+			} else {
+				ring.Value = res
+				ring.Next()
+				log.Printf("Time: %v\n", res.Time)
+				log.Printf("Min: %f ms\n", res.Min)
+				log.Printf("Avg: %f ms\n", res.Avg)
+				log.Printf("Max: %f ms\n", res.Max)
+				log.Printf("Mdev: %f ms\n", res.Mdev)
 			}
-			ring.Value = res
-			ring.Next()
-			log.Printf("Time: %v\n", res.Time)
-			log.Printf("Min: %f ms\n", res.Min)
-			log.Printf("Avg: %f ms\n", res.Avg)
-			log.Printf("Max: %f ms\n", res.Max)
-			log.Printf("Mdev: %f ms\n", res.Mdev)
 		}
 	}()
 
