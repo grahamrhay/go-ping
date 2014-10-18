@@ -4,9 +4,11 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type PingResult struct {
+	Time time.Time
 	Min  float64
 	Avg  float64
 	Max  float64
@@ -25,6 +27,6 @@ func ping(target string, count int) (*PingResult, error) {
 	avg, _ := strconv.ParseFloat(results[1], 64)
 	max, _ := strconv.ParseFloat(results[2], 64)
 	mdev, _ := strconv.ParseFloat(results[3], 64)
-	result := &PingResult{Min: min, Avg: avg, Max: max, Mdev: mdev}
+	result := &PingResult{Time: time.Now(), Min: min, Avg: avg, Max: max, Mdev: mdev}
 	return result, nil
 }

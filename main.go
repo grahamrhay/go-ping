@@ -22,6 +22,7 @@ func main() {
 			}
 			ring.Value = res
 			ring.Next()
+			log.Printf("Time: %v\n", res.Time)
 			log.Printf("Min: %f ms\n", res.Min)
 			log.Printf("Avg: %f ms\n", res.Avg)
 			log.Printf("Max: %f ms\n", res.Max)
