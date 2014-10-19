@@ -2,31 +2,37 @@ package main
 
 import (
 	"container/ring"
-	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 )
 
 func startServer(ring **ring.Ring) {
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
 	http.HandleFunc("/", makeHandler(ring))
 	go func() {
 		log.Fatal(http.ListenAndServe(":8080", nil))
 	}()
 }
 
+type Point struct {
+	X int64
+	Y float64
+}
+
 func makeHandler(ring **ring.Ring) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		points := []Point{}
 		ring.Do(func(value interface{}) {
 			if value == nil {
 				return
 			}
 
 			res := value.(*PingResult)
-			fmt.Fprintf(w, "Time: %v\n", res.Time)
-			fmt.Fprintf(w, "Min: %f ms\n", res.Min)
-			fmt.Fprintf(w, "Avg: %f ms\n", res.Avg)
-			fmt.Fprintf(w, "Max: %f ms\n", res.Max)
-			fmt.Fprintf(w, "Mdev: %f ms\n", res.Mdev)
+			point := &Point{X: res.Time.Unix(), Y: res.Avg}
+			points = append(points, *point)
 		})
+		t, _ := template.ParseFiles("index.html")
+		t.Execute(w, points)
 	}
 }
