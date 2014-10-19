@@ -23,11 +23,6 @@ func main() {
 			} else {
 				ring.Value = res
 				ring = ring.Next()
-				log.Printf("Time: %v\n", res.Time)
-				log.Printf("Min: %f ms\n", res.Min)
-				log.Printf("Avg: %f ms\n", res.Avg)
-				log.Printf("Max: %f ms\n", res.Max)
-				log.Printf("Mdev: %f ms\n", res.Mdev)
 			}
 		}
 	}()
