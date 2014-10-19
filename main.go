@@ -13,6 +13,7 @@ import (
 
 func main() {
 	ring := ring.New(10)
+	current := &ring
 
 	ticker := time.NewTicker(10 * time.Second)
 	go func() {
@@ -33,7 +34,7 @@ func main() {
 		}
 	}()
 
-	http.HandleFunc("/", makeHandler(ring))
+	http.HandleFunc("/", makeHandler(current))
 	go func() {
 		log.Fatal(http.ListenAndServe(":8080", nil))
 	}()
@@ -45,7 +46,7 @@ func main() {
 	ticker.Stop()
 }
 
-func makeHandler(ring *ring.Ring) http.HandlerFunc {
+func makeHandler(ring **ring.Ring) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ring.Do(func(value interface{}) {
 			if value == nil {
