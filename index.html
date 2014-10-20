@@ -12,20 +12,48 @@
     <div id="chart"></div>
 
     <script>
+var palette = new Rickshaw.Color.Palette( { scheme: 'classic9' } );
+
 var graph = new Rickshaw.Graph( {
     element: document.querySelector("#chart"),
     width: 600,
     height: 300,
     series: [{
-        color: 'steelblue',
+        name: 'rtt avg',
+        color: palette.color(),
         data: [
         {{range $point := .Avg}}
+            { x: {{ $point.X }}, y: {{ $point.Y }} },
+        {{ end }}
+        ]
+    },{
+        name: 'rtt min',
+        color: palette.color(),
+        data: [
+        {{range $point := .Min}}
+            { x: {{ $point.X }}, y: {{ $point.Y }} },
+        {{ end }}
+        ]
+    },{
+        name: 'rtt max',
+        color: palette.color(),
+        data: [
+        {{range $point := .Max}}
+            { x: {{ $point.X }}, y: {{ $point.Y }} },
+        {{ end }}
+        ]
+    },{
+        name: 'rtt mdev',
+        color: palette.color(),
+        data: [
+        {{range $point := .Mdev}}
             { x: {{ $point.X }}, y: {{ $point.Y }} },
         {{ end }}
         ]
     }]
 });
 
+graph.renderer.unstack = true;
 graph.render();
     </script>
 </body>

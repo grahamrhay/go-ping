@@ -21,7 +21,10 @@ type Point struct {
 }
 
 type Data struct {
-	Avg []Point
+	Min  []Point
+	Avg  []Point
+	Max  []Point
+	Mdev []Point
 }
 
 func makeHandler(ring **ring.Ring) http.HandlerFunc {
@@ -33,7 +36,10 @@ func makeHandler(ring **ring.Ring) http.HandlerFunc {
 			}
 
 			res := value.(*PingResult)
+			data.Min = append(data.Min, *&Point{X: res.Time.Unix(), Y: res.Min})
 			data.Avg = append(data.Avg, *&Point{X: res.Time.Unix(), Y: res.Avg})
+			data.Max = append(data.Max, *&Point{X: res.Time.Unix(), Y: res.Max})
+			data.Mdev = append(data.Mdev, *&Point{X: res.Time.Unix(), Y: res.Mdev})
 		})
 		t, _ := template.ParseFiles("index.html")
 		t.Execute(w, data)
