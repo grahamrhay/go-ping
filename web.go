@@ -20,19 +20,22 @@ type Point struct {
 	Y float64
 }
 
+type Data struct {
+	Avg []Point
+}
+
 func makeHandler(ring **ring.Ring) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		points := []Point{}
+		data := &Data{Avg: []Point{}}
 		ring.Do(func(value interface{}) {
 			if value == nil {
 				return
 			}
 
 			res := value.(*PingResult)
-			point := &Point{X: res.Time.Unix(), Y: res.Avg}
-			points = append(points, *point)
+			data.Avg = append(data.Avg, *&Point{X: res.Time.Unix(), Y: res.Avg})
 		})
 		t, _ := template.ParseFiles("index.html")
-		t.Execute(w, points)
+		t.Execute(w, data)
 	}
 }

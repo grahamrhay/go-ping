@@ -19,7 +19,7 @@ var graph = new Rickshaw.Graph( {
     series: [{
         color: 'steelblue',
         data: [
-        {{range $point := .}}
+        {{range $point := .Avg}}
             { x: {{ $point.X }}, y: {{ $point.Y }} },
         {{ end }}
         ]
