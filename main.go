@@ -10,20 +10,15 @@ import (
 )
 
 func main() {
-	ring := ring.New(10)
+	ring := ring.New(36)
 	current := &ring
 
-	ticker := time.NewTicker(10 * time.Second)
+	ticker := time.NewTicker(5 * time.Minute)
 	go func() {
 		for _ = range ticker.C {
-			log.Println("ping google.com -c 5")
-			res, err := ping("google.com", 5)
-			if err != nil {
-				log.Printf("Error from ping: %v\n", err)
-			} else {
-				ring.Value = res
-				ring = ring.Next()
-			}
+			res := ping("google.com", 20)
+			ring.Value = res
+			ring = ring.Next()
 		}
 	}()
 

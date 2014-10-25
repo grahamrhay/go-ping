@@ -31,7 +31,7 @@ func makeHandler(ring **ring.Ring) http.HandlerFunc {
 			}
 
 			res := value.(*PingResult)
-            data.Times = append(data.Times, res.Time.Format("15:04"))
+			data.Times = append(data.Times, res.Time.Format("15:04"))
 			data.Avg = append(data.Avg, res.Avg)
 		})
 		t, _ := template.ParseFiles("index.html")
