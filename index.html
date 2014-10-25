@@ -8,12 +8,16 @@
 
     <h2>google.com</h2>
 
-    <canvas id="chart" width="600" height="300"></canvas>
+    <h3>Last 3 hours</h3>
+    <canvas id="last3Hours" width="600" height="300"></canvas>
+
+    <h3>Last 30 hours</h3>
+    <canvas id="last30Hours" width="600" height="300"></canvas>
 
     <script>
-var data = {
+var last3HoursData = {
     labels: [
-        {{range $time := .Times}}
+        {{range $time := .Last3Hours.Times}}
             {{ $time }},
         {{ end }}
     ],
@@ -26,7 +30,7 @@ var data = {
         pointHighlightFill: "#fff",
         pointHighlightStroke: "rgba(220,220,220,1)",
         data: [
-            {{range $avg := .Avg}}
+            {{range $avg := .Last3Hours.Avg}}
                 {{ $avg }},
             {{ end }}
         ]
@@ -34,7 +38,32 @@ var data = {
 };
 var options = {};
 
-var ctx = document.getElementById("chart").getContext("2d");
-var chart = new Chart(ctx).Line(data, options);
+var ctx1 = document.getElementById("last3Hours").getContext("2d");
+new Chart(ctx1).Line(last3HoursData, options);
+
+var last30HoursData = {
+    labels: [
+        {{range $time := .Last30Hours.Times}}
+            {{ $time }},
+        {{ end }}
+    ],
+    datasets: [{
+        label: "rtt avg",
+        fillColor: "rgba(220,220,220,0.2)",
+        strokeColor: "rgba(220,220,220,1)",
+        pointColor: "rgba(220,220,220,1)",
+        pointStrokeColor: "#fff",
+        pointHighlightFill: "#fff",
+        pointHighlightStroke: "rgba(220,220,220,1)",
+        data: [
+            {{range $avg := .Last30Hours.Avg}}
+                {{ $avg }},
+            {{ end }}
+        ]
+    }]
+};
+
+var ctx2 = document.getElementById("last30Hours").getContext("2d");
+new Chart(ctx2).Line(last30HoursData, options);
     </script>
 </body>

@@ -31,5 +31,6 @@ func ping(target string, count int) *PingResult {
 	result.Avg, _ = strconv.ParseFloat(results[1], 64)
 	result.Max, _ = strconv.ParseFloat(results[2], 64)
 	result.Mdev, _ = strconv.ParseFloat(results[3], 64)
+	log.Printf("Min: %v, Avg: %v, Max: %v, Mdev: %v\n", result.Min, result.Avg, result.Max, result.Mdev)
 	return result
 }
