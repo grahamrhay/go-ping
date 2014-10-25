@@ -15,32 +15,22 @@ func startServer(ring **ring.Ring) {
 	}()
 }
 
-type Point struct {
-	X int64
-	Y float64
-}
-
 type Data struct {
-	Min  []Point
-	Avg  []Point
-	Max  []Point
-	Mdev []Point
+	Times []string
+	Avg   []float64
 }
 
 func makeHandler(ring **ring.Ring) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		data := &Data{Avg: []Point{}}
+		data := &Data{Times: []string{}, Avg: []float64{}}
 		ring.Do(func(value interface{}) {
 			if value == nil {
 				return
 			}
 
 			res := value.(*PingResult)
-			unix := res.Time.Unix()
-			data.Min = append(data.Min, *&Point{X: unix, Y: res.Min})
-			data.Avg = append(data.Avg, *&Point{X: unix, Y: res.Avg})
-			data.Max = append(data.Max, *&Point{X: unix, Y: res.Max})
-			data.Mdev = append(data.Mdev, *&Point{X: unix, Y: res.Mdev})
+            data.Times = append(data.Times, res.Time.Format("15:04"))
+			data.Avg = append(data.Avg, res.Avg)
 		})
 		t, _ := template.ParseFiles("index.html")
 		t.Execute(w, data)

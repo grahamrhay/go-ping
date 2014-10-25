@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <head>
-    <script src="/static/js/d3.min.js"></script>
-    <script src="/static/js/rickshaw.min.js"></script>
+    <script src="/static/js/Chart.min.js"></script>
 </head>
 <body>
 
@@ -9,51 +8,33 @@
 
     <h2>google.com</h2>
 
-    <div id="chart"></div>
+    <canvas id="chart" width="600" height="300"></canvas>
 
     <script>
-var palette = new Rickshaw.Color.Palette( { scheme: 'classic9' } );
-
-var graph = new Rickshaw.Graph( {
-    element: document.querySelector("#chart"),
-    width: 600,
-    height: 300,
-    series: [{
-        name: 'rtt avg',
-        color: palette.color(),
-        data: [
-        {{range $point := .Avg}}
-            { x: {{ $point.X }}, y: {{ $point.Y }} },
+var data = {
+    labels: [
+        {{range $time := .Times}}
+            {{ $time }},
         {{ end }}
-        ]
-    },{
-        name: 'rtt min',
-        color: palette.color(),
+    ],
+    datasets: [{
+        label: "rtt avg",
+        fillColor: "rgba(220,220,220,0.2)",
+        strokeColor: "rgba(220,220,220,1)",
+        pointColor: "rgba(220,220,220,1)",
+        pointStrokeColor: "#fff",
+        pointHighlightFill: "#fff",
+        pointHighlightStroke: "rgba(220,220,220,1)",
         data: [
-        {{range $point := .Min}}
-            { x: {{ $point.X }}, y: {{ $point.Y }} },
-        {{ end }}
-        ]
-    },{
-        name: 'rtt max',
-        color: palette.color(),
-        data: [
-        {{range $point := .Max}}
-            { x: {{ $point.X }}, y: {{ $point.Y }} },
-        {{ end }}
-        ]
-    },{
-        name: 'rtt mdev',
-        color: palette.color(),
-        data: [
-        {{range $point := .Mdev}}
-            { x: {{ $point.X }}, y: {{ $point.Y }} },
-        {{ end }}
+            {{range $avg := .Avg}}
+                {{ $avg }},
+            {{ end }}
         ]
     }]
-});
+};
+var options = {};
 
-graph.renderer.unstack = true;
-graph.render();
+var ctx = document.getElementById("chart").getContext("2d");
+var chart = new Chart(ctx).Line(data, options);
     </script>
 </body>
