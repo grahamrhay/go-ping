@@ -11,7 +11,9 @@ func startServer(ring **ring.Ring) {
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
 	http.HandleFunc("/", makeHandler(ring))
 	go func() {
-		log.Fatal(http.ListenAndServe(":8080", nil))
+		port := "8080"
+		log.Println("Listening on:", port)
+		log.Fatal(http.ListenAndServe(":"+port, nil))
 	}()
 }
 
