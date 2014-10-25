@@ -9,11 +9,12 @@ import (
 )
 
 type PingResult struct {
-	Time time.Time
-	Min  float64
-	Avg  float64
-	Max  float64
-	Mdev float64
+	Time       time.Time
+	Min        float64
+	Avg        float64
+	Max        float64
+	Mdev       float64
+	PacketLoss int64
 }
 
 func ping(target string, count int) *PingResult {
@@ -25,12 +26,16 @@ func ping(target string, count int) *PingResult {
 		return result
 	}
 	lines := strings.Split(string(out), "\n")
-	summary := lines[len(lines)-2]
-	results := strings.Split(strings.TrimRight(strings.TrimSpace(strings.Split(summary, "=")[1]), " ms"), "/")
+
+	packetSummary := lines[len(lines)-3]
+	result.PacketLoss, _ = strconv.ParseInt(strings.TrimRight(strings.TrimSpace(strings.Split(packetSummary, ",")[2]), "% packet loss"), 10, 64)
+
+	rttSummary := lines[len(lines)-2]
+	results := strings.Split(strings.TrimRight(strings.TrimSpace(strings.Split(rttSummary, "=")[1]), " ms"), "/")
 	result.Min, _ = strconv.ParseFloat(results[0], 64)
 	result.Avg, _ = strconv.ParseFloat(results[1], 64)
 	result.Max, _ = strconv.ParseFloat(results[2], 64)
 	result.Mdev, _ = strconv.ParseFloat(results[3], 64)
-	log.Printf("Min: %v, Avg: %v, Max: %v, Mdev: %v\n", result.Min, result.Avg, result.Max, result.Mdev)
+	log.Printf("Min: %vms, Avg: %vms, Max: %vms, Mdev: %vms, Packet loss: %%%v\n", result.Min, result.Avg, result.Max, result.Mdev, result.PacketLoss)
 	return result
 }
