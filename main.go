@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 )
@@ -15,6 +16,10 @@ type Samples struct {
 }
 
 func main() {
+	store, err := openStore()
+	if err != nil {
+		log.Fatal("Failed to open data store: %v", err)
+	}
 	samples := &Samples{Last3Hours: ring.New(36), Last30Hours: ring.New(30)}
 	startOfLast3Hours := &samples.Last3Hours
 	startOfLast30Hours := &samples.Last30Hours
@@ -24,8 +29,10 @@ func main() {
 	ticker1 := time.NewTicker(5 * time.Minute)
 	go func() {
 		takeSample(samples)
+		persistRing(store, startOfLast3Hours, "last3Hours")
 		for _ = range ticker1.C {
 			takeSample(samples)
+			persistRing(store, startOfLast3Hours, "last3Hours")
 		}
 	}()
 
@@ -48,6 +55,22 @@ func takeSample(samples *Samples) {
 	res := ping("google.com", 20)
 	samples.Last3Hours.Value = res
 	samples.Last3Hours = samples.Last3Hours.Next()
+}
+
+func persistRing(store *Store, ring **ring.Ring, prefix string) {
+	i := 0
+	var err error
+	ring.Do(func(value interface{}) {
+		if value == nil || err != nil {
+			return
+		}
+
+		err = writeToStore(store, "google.com", value, prefix+strconv.Itoa(i))
+		i++
+	})
+	if err != nil {
+		log.Printf("Error writing result: %v\n", err)
+	}
 }
 
 func downSample(samples *Samples) {
