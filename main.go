@@ -15,18 +15,27 @@ type Samples struct {
 	Last30Hours *ring.Ring
 }
 
+const NLast3Hours = 36
+
 func main() {
 	store, err := openStore()
 	if err != nil {
 		log.Fatal("Failed to open data store: %v", err)
 	}
-	samples := &Samples{Last3Hours: ring.New(36), Last30Hours: ring.New(30)}
+
+	samples := &Samples{Last3Hours: ring.New(NLast3Hours), Last30Hours: ring.New(30)}
 	startOfLast3Hours := &samples.Last3Hours
 	startOfLast30Hours := &samples.Last30Hours
 
 	startServer(startOfLast3Hours, startOfLast30Hours)
 
-	ticker1 := time.NewTicker(5 * time.Minute)
+	err = loadSamples(store, samples)
+	if err != nil {
+		log.Fatal("Error loading samples: %v\n", err)
+	}
+
+	//ticker1 := time.NewTicker(5 * time.Minute)
+	ticker1 := time.NewTicker(10 * time.Second)
 	go func() {
 		takeSample(samples)
 		persistRing(store, startOfLast3Hours, "last3Hours")
@@ -49,10 +58,11 @@ func main() {
 	log.Println("Shutting down")
 	ticker1.Stop()
 	ticker2.Stop()
+	closeStore(store)
 }
 
 func takeSample(samples *Samples) {
-	res := ping("google.com", 20)
+	res := ping("google.com", 5)
 	samples.Last3Hours.Value = res
 	samples.Last3Hours = samples.Last3Hours.Next()
 }
@@ -88,4 +98,19 @@ func downSample(samples *Samples) {
 	})
 	samples.Last30Hours.Value = &PingResult{Time: time.Now(), Avg: avg / count}
 	samples.Last30Hours = samples.Last30Hours.Next()
+}
+
+func loadSamples(store *Store, samples *Samples) error {
+	for i := 0; i < NLast3Hours; i++ {
+		val, err := getFromStore(store, "google.com", "last3Hours"+strconv.Itoa(i))
+		if err != nil {
+			return err
+		}
+		if val == nil {
+			return nil
+		}
+		samples.Last3Hours.Value = val
+		samples.Last3Hours = samples.Last3Hours.Next()
+	}
+	return nil
 }

@@ -28,7 +28,6 @@ func openStore() (*Store, error) {
 
 func closeStore(store *Store) {
 	log.Println("Closing store")
-	store.f.Sync()
 	store.s.Close()
 	store.f.Close()
 }
@@ -46,5 +45,37 @@ func writeToStore(store *Store, coll string, item interface{}, key string) error
 	if err != nil {
 		return err
 	}
-	return c.Set([]byte(key), buffer.Bytes())
+	err = c.Set([]byte(key), buffer.Bytes())
+	if err != nil {
+		return err
+	}
+	err = store.s.Flush()
+	if err != nil {
+		return err
+	}
+	return store.f.Sync()
+}
+
+func getFromStore(store *Store, coll string, key string) (*PingResult, error) {
+	log.Printf("Retrieving item from store. Coll: %v, Key: %v\n", coll, key)
+	c := store.s.GetCollection(coll)
+	if c == nil {
+		log.Println("Collection doesn't exist")
+		return nil, nil
+	}
+	itemBytes, err := c.Get([]byte(key))
+	if err != nil {
+		return nil, err
+	}
+	if itemBytes == nil {
+		return nil, nil
+	}
+	buffer := bytes.NewBuffer(itemBytes)
+	dec := gob.NewDecoder(buffer)
+	var result PingResult
+	err = dec.Decode(&result)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
